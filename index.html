@@ -471,6 +471,8 @@
       <div class="admin-row full">
         <div><label class="admin-label">URL del Google Sheet publicado (CSV)</label><input class="admin-input" id="edSheetUrl" placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv"></div>
       </div>
+      <button type="button" class="btn btn--ghost" id="testSheetBtn" style="margin-top:4px;">Probar conexión</button>
+      <p class="hint" id="sheetStatus" style="margin-top:10px;"></p>
     </div>
 
     <div class="admin-actions">
@@ -1164,6 +1166,38 @@ document.getElementById('pickerConfirm').addEventListener('click', () => {
     pickerTargetRow.querySelector('.biz-lng').value = ll.lng.toFixed(6);
   }
   mapPickerOverlay.classList.remove('open');
+});
+
+document.getElementById('testSheetBtn').addEventListener('click', async () => {
+  const statusEl = document.getElementById('sheetStatus');
+  const url = document.getElementById('edSheetUrl').value.trim();
+  if(!url){ statusEl.textContent = 'Pegá primero la URL del Sheet publicado.'; statusEl.style.color = 'var(--coral-dark)'; return; }
+  statusEl.textContent = 'Probando conexión...';
+  statusEl.style.color = 'var(--ink-soft)';
+  try{
+    const res = await fetch(url);
+    if(!res.ok){ statusEl.textContent = `Error al conectar: el servidor respondió ${res.status}. Revisá que el link sea el de "Publicar en la web" en formato CSV.`; statusEl.style.color = 'var(--coral-dark)'; return; }
+    const text = await res.text();
+    const rows = parseCSV(text);
+    if(rows.length < 2){ statusEl.textContent = 'La hoja respondió pero no tiene filas de datos todavía.'; statusEl.style.color = 'var(--coral-dark)'; return; }
+    const headers = rows[0].map(h => h.trim().toLowerCase());
+    const iPublicado = headers.indexOf('publicado');
+    const totalFilas = rows.length - 1;
+    if(iPublicado < 0){
+      statusEl.innerHTML = `Se encontraron ${totalFilas} fila(s), pero <strong>no hay ninguna columna llamada exactamente "Publicado"</strong>. Encabezados detectados: ${headers.map(h => `"${h}"`).join(', ')}. Revisá que el nombre de la columna sea exactamente "Publicado" (sin signos de pregunta ni espacios de más).`;
+      statusEl.style.color = 'var(--coral-dark)';
+      return;
+    }
+    const publicadas = rows.slice(1).filter(r => {
+      const val = (r[iPublicado] || '').trim().toLowerCase();
+      return val === 'publicado' || val === 'true' || val === 'si' || val === 'sí';
+    }).length;
+    statusEl.innerHTML = `Conexión OK. Se encontraron ${totalFilas} fila(s) en total, de las cuales <strong>${publicadas}</strong> están marcadas como "Publicado" y deberían verse en la web.`;
+    statusEl.style.color = publicadas > 0 ? 'var(--teal-dark)' : 'var(--coral-dark)';
+  } catch(e){
+    statusEl.textContent = 'No se pudo conectar con esa URL. Revisá que sea el link exacto de "Publicar en la web" (termina en pub?output=csv).';
+    statusEl.style.color = 'var(--coral-dark)';
+  }
 });
 
 function collectFormIntoContent(){
