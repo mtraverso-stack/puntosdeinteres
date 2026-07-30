@@ -708,20 +708,27 @@ async function loadSheetBusinesses(){
     const rows = parseCSV(text);
     if(rows.length < 2){ sheetBusinesses = []; return; }
     const headers = rows[0].map(h => h.trim().toLowerCase());
-    const idx = name => headers.indexOf(name);
+    const idx = keyword => headers.findIndex(h => h.startsWith(keyword));
     const iNombre = idx('nombre del comercio');
     const iRubro = idx('rubro comercial');
-    const iDesc = idx('descripción del comercio');
-    const iDireccion = idx('dirección');
-    const iWhatsapp = idx('whatsapp de contacto');
-    const iInstagram = idx('instagram (opcional)');
-    const iFacebook = idx('facebook (opcional)');
-    const iTiktok = idx('tiktok (opcional)');
-    const iWeb = idx('sitio web (opcional)');
-    const iEmail = idx('email (opcional)');
+    const iDesc = idx('descripci');
+    const iDireccion = idx('direcci');
+    const iWhatsapp = idx('whatsapp');
+    const iInstagram = idx('instagram');
+    const iFacebook = idx('facebook');
+    const iTiktok = idx('tiktok');
+    const iWeb = idx('sitio web');
+    const iEmail = idx('email');
     const iPublicado = idx('publicado');
+    const iLogo = idx('logo');
     const REV_RUBRO = {};
     Object.entries(RUBRO_LABELS).forEach(([slug, label]) => { REV_RUBRO[label.toLowerCase()] = slug; });
+
+    function driveImageUrl(link){
+      if(!link) return '';
+      const m = link.match(/[-\w]{25,}/);
+      return m ? `https://drive.google.com/uc?export=view&id=${m[0]}` : '';
+    }
 
     sheetBusinesses = rows.slice(1).filter(r => {
       const val = (iPublicado >= 0 ? (r[iPublicado] || '') : '').trim().toLowerCase();
@@ -742,7 +749,7 @@ async function loadSheetBusinesses(){
         rubroLabel: RUBRO_LABELS[rubroSlug] || rubroLabelRaw || 'Otro',
         desc: iDesc >= 0 ? r[iDesc] : '',
         direccion: iDireccion >= 0 ? r[iDireccion] : '',
-        image: '',
+        image: iLogo >= 0 ? driveImageUrl(r[iLogo]) : '',
         lat: null,
         lng: null,
         links: links
