@@ -105,6 +105,8 @@
   .biz-card p{margin:0; color:var(--ink-soft); font-size:14px;}
   .biz-links{display:flex; gap:8px; margin-top:auto; padding-top:8px; flex-wrap:wrap;}
   .biz-icon-link{width:36px; height:36px; border-radius:50%; border:1px solid var(--line); display:inline-flex; align-items:center; justify-content:center; color:var(--indigo); background:#fff; text-decoration:none; flex-shrink:0;}
+  .addr-pill{display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line); border-radius:999px; padding:8px 16px; font-size:14px; font-weight:600; color:var(--indigo); text-decoration:none; background:#fff;}
+  .addr-pill:hover{background:var(--paper-tint);}
   .biz-icon-link:hover{background:var(--paper-tint);}
   .biz-icon-link svg{width:18px; height:18px;}
   .biz-empty{display:none; text-align:center; padding:40px 0; color:var(--ink-soft);}
@@ -886,7 +888,7 @@ function openBizDetail(b){
     </div>
     <div class="admin-section">
       <h3>Dirección</h3>
-      <p style="color:var(--ink-soft); margin:0;">${b.direccion || 'Sin dirección cargada.'}</p>
+      ${b.direccion ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(b.direccion + ' ' + (b.nombre || ''))}" target="_blank" rel="noopener" class="addr-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:16px; height:16px;"><path d="M12 21s7-7.2 7-12a7 7 0 1 0-14 0c0 4.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>${b.direccion}</a>` : '<p style="color:var(--ink-soft); margin:0;">Sin dirección cargada.</p>'}
     </div>
     <div class="admin-section">
       <h3>Contacto</h3>
