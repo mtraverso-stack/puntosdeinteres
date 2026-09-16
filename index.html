@@ -287,60 +287,12 @@
           <div><h4>Material oficial</h4><p>Recibí la cartelería y los recursos gráficos de Compre Local para tu local.</p></div>
         </div>
       </div>
-      <form class="signup-form" id="signupForm">
+      <form class="signup-form" id="signupForm" style="justify-content:center; text-align:center; gap:22px;">
         <div>
-          <label for="f-nombre">Nombre del comercio</label>
-          <input id="f-nombre" name="nombre" type="text" placeholder="Nombre de tu comercio" required minlength="3">
+          <h3 style="font-family:var(--font-body); font-weight:700; font-size:19px; margin:0 0 10px;">Completá el formulario de inscripción</h3>
+          <p style="color:var(--ink-soft); margin:0;">Te va a pedir los datos de tu comercio, tus redes y contacto. Una vez enviado, nuestro equipo revisa la solicitud y lo publica en el directorio.</p>
         </div>
-        <div>
-          <label for="f-cuit">CUIT del comercio</label>
-          <input id="f-cuit" name="cuit" type="text" placeholder="20-12345678-9" required pattern="\d{2}-?\d{8}-?\d{1}">
-        </div>
-        <div>
-          <label for="f-rubro">Rubro comercial</label>
-          <select id="f-rubro" name="rubro" required>
-            <option value="" disabled selected>Seleccioná un rubro</option>
-          </select>
-        </div>
-        <div>
-          <label for="f-desc">Descripción del comercio</label>
-          <input id="f-desc" name="descripcion" type="text" placeholder="Contanos qué ofrece tu comercio" required minlength="10">
-        </div>
-        <div>
-          <label for="f-direccion">Dirección</label>
-          <input id="f-direccion" name="direccion" type="text" placeholder="Calle y número, El Trébol" required>
-        </div>
-        <div>
-          <label for="f-logo">Logo del comercio</label>
-          <input id="f-logo" name="logo" type="file" accept="image/*">
-          <p class="hint" style="margin-top:6px;">El formulario no puede adjuntar el archivo por WhatsApp automáticamente: después de enviar el mensaje, mandanos el logo directamente por ese mismo chat.</p>
-        </div>
-        <div>
-          <label for="f-tel">WhatsApp de contacto</label>
-          <input id="f-tel" name="telefono" type="tel" placeholder="Ej: 3401 123456" required pattern="[0-9 ()+-]{8,}">
-        </div>
-        <div>
-          <label for="f-instagram">Instagram (opcional)</label>
-          <input id="f-instagram" name="instagram" type="text" placeholder="@tucomercio">
-        </div>
-        <div>
-          <label for="f-facebook">Facebook (opcional)</label>
-          <input id="f-facebook" name="facebook" type="text" placeholder="facebook.com/tucomercio">
-        </div>
-        <div>
-          <label for="f-tiktok">TikTok (opcional)</label>
-          <input id="f-tiktok" name="tiktok" type="text" placeholder="@tucomercio">
-        </div>
-        <div>
-          <label for="f-web">Sitio web (opcional)</label>
-          <input id="f-web" name="web" type="text" placeholder="www.tucomercio.com">
-        </div>
-        <label class="checkline">
-          <input type="checkbox" required>
-          Acepto que un asesor del programa Compre Local me contacte por WhatsApp para coordinar la adhesión.
-        </label>
-        <button type="submit" class="btn btn--teal" style="justify-content:center;">Enviar solicitud por WhatsApp</button>
-        <p class="form-msg" id="formMsg">Se abrió WhatsApp con tu solicitud. Enviá el mensaje y adjuntá el logo para confirmar la adhesión.</p>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLScS7Zb84nARHVHhDJjgAsTBJ75TDonojtQiGfIKhmMuRwAvGw/viewform" target="_blank" rel="noopener" class="btn btn--teal" id="signupFormLink" style="justify-content:center;">Completar formulario</a>
       </form>
     </div>
   </div>
@@ -465,6 +417,9 @@
       <div class="admin-row full">
         <div><label class="admin-label">Fechas del evento (pie de página)</label><input class="admin-input" id="edFootDates"></div>
       </div>
+      <div class="admin-row full">
+        <div><label class="admin-label">Link del Google Form para "Sumar mi comercio"</label><input class="admin-input" id="edFormUrl" placeholder="https://docs.google.com/forms/d/e/.../viewform"></div>
+      </div>
     </div>
 
     <div class="admin-section">
@@ -547,7 +502,8 @@ const DEFAULT_CONTENT = {
   "contact": {
     "whatsapp": "5493401000000",
     "email": "compreloc@eltrebol.example",
-    "footDates": "Fechas a completar."
+    "footDates": "Fechas a completar.",
+    "formUrl": "https://docs.google.com/forms/d/e/1FAIpQLScS7Zb84nARHVHhDJjgAsTBJ75TDonojtQiGfIKhmMuRwAvGw/viewform"
   },
   "sheet": {
     "url": ""
@@ -625,13 +581,6 @@ function renderFilters(){
     btn.textContent = r.label;
     container.appendChild(btn);
   });
-}
-
-function renderSignupRubroOptions(){
-  const sel = document.getElementById('f-rubro');
-  sel.innerHTML = '<option value="" disabled selected>Seleccioná un rubro</option>' +
-    (content.rubros || []).map(r => `<option>${r.label}</option>`).join('') +
-    '<option>Otro rubro</option>';
 }
 
 function loadContent(){
@@ -818,6 +767,8 @@ function renderFooter(){
   document.getElementById('footWhatsapp').textContent = 'WhatsApp: ' + content.contact.whatsapp;
   document.getElementById('footEmail').textContent = content.contact.email;
   document.getElementById('footDates').textContent = content.contact.footDates;
+  const formLink = document.getElementById('signupFormLink');
+  if(formLink && content.contact.formUrl) formLink.href = content.contact.formUrl;
 }
 
 async function renderAll(){
@@ -826,7 +777,6 @@ async function renderAll(){
   renderPromos();
   renderFilters();
   renderLegend();
-  renderSignupRubroOptions();
   await loadSheetBusinesses();
   updateDirectory();
   renderFooter();
@@ -906,38 +856,6 @@ document.querySelectorAll('.nav-links a').forEach(a => a.addEventListener('click
   document.getElementById('navLinks').classList.remove('open');
 }));
 
-document.getElementById('signupForm').addEventListener('submit', e => {
-  e.preventDefault();
-  const f = e.target;
-  const nombre = f.nombre.value.trim();
-  const cuit = f.cuit.value.trim();
-  const rubro = f.rubro.value;
-  const descripcion = f.descripcion.value.trim();
-  const direccion = f.direccion.value.trim();
-  const tel = f.telefono.value.trim();
-  const instagram = f.instagram.value.trim();
-  const facebook = f.facebook.value.trim();
-  const tiktok = f.tiktok.value.trim();
-  const web = f.web.value.trim();
-  const lines = [
-    'Hola! Quiero sumar mi comercio a Puntos de Interés.',
-    `Comercio: ${nombre}`,
-    `CUIT: ${cuit}`,
-    `Rubro: ${rubro}`,
-    `Descripción: ${descripcion}`,
-    `Dirección: ${direccion}`,
-    `WhatsApp: ${tel}`,
-    `Instagram: ${instagram || '-'}`,
-    `Facebook: ${facebook || '-'}`,
-    `TikTok: ${tiktok || '-'}`,
-    `Web: ${web || '-'}`,
-    'Te mando el logo del comercio a continuación por este mismo chat.'
-  ];
-  const msg = encodeURIComponent(lines.join('\n'));
-  window.open(`https://wa.me/${content.contact.whatsapp}?text=${msg}`, '_blank');
-  document.getElementById('formMsg').style.display = 'block';
-});
-
 const adminOverlay = document.getElementById('adminOverlay');
 const editorOverlay = document.getElementById('editorOverlay');
 const mapPickerOverlay = document.getElementById('mapPickerOverlay');
@@ -999,6 +917,7 @@ function fillEditorForm(){
   document.getElementById('edWhatsapp').value = content.contact.whatsapp;
   document.getElementById('edEmail').value = content.contact.email;
   document.getElementById('edFootDates').value = content.contact.footDates;
+  document.getElementById('edFormUrl').value = content.contact.formUrl || '';
   document.getElementById('edSheetUrl').value = (content.sheet && content.sheet.url) || '';
 
   const promoWrap = document.getElementById('promoEditWrap');
@@ -1213,6 +1132,7 @@ function collectFormIntoContent(){
   content.contact.whatsapp = document.getElementById('edWhatsapp').value.replace(/\D/g,'');
   content.contact.email = document.getElementById('edEmail').value;
   content.contact.footDates = document.getElementById('edFootDates').value;
+  content.contact.formUrl = document.getElementById('edFormUrl').value.trim();
   content.sheet = content.sheet || {};
   content.sheet.url = document.getElementById('edSheetUrl').value.trim();
 
