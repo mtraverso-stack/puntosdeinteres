@@ -506,7 +506,7 @@ const DEFAULT_CONTENT = {
     "formUrl": "https://docs.google.com/forms/d/e/1FAIpQLScS7Zb84nARHVHhDJjgAsTBJ75TDonojtQiGfIKhmMuRwAvGw/viewform"
   },
   "sheet": {
-    "url": ""
+    "url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQtjtiQy5rIqHJfYXvjGnNzJUVqvGBBacuOb1dE1D0B7TWqLavsgNvWo1DvEN88QRuxF36nWMjtWhLv/pub?gid=920446426&single=true&output=csv"
   }
 };
 /*CONTENT_END*/
@@ -587,7 +587,11 @@ function loadContent(){
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
     if(!raw) return JSON.parse(JSON.stringify(DEFAULT_CONTENT));
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    if(!parsed.sheet || !parsed.sheet.url){
+      parsed.sheet = {url: DEFAULT_CONTENT.sheet.url};
+    }
+    return parsed;
   }catch(e){ return JSON.parse(JSON.stringify(DEFAULT_CONTENT)); }
 }
 let content = loadContent();
