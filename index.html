@@ -660,7 +660,12 @@ async function loadSheetBusinesses(){
   try{
     const res = await fetch(url);
     const text = await res.text();
-    const rows = parseCSV(text);
+    let rows = parseCSV(text);
+    // Skip leading blank/junk rows so the real header row is found even if
+    // the sheet has an empty first line or a title row above the headers.
+    while(rows.length && rows[0].every(cell => !cell || !cell.trim())){
+      rows = rows.slice(1);
+    }
     if(rows.length < 2){ sheetBusinesses = []; return; }
     const headers = rows[0].map(h => h.trim().toLowerCase());
     const idx = keyword => headers.findIndex(h => h.startsWith(keyword));
@@ -1110,13 +1115,20 @@ document.getElementById('testSheetBtn').addEventListener('click', async () => {
     const res = await fetch(url);
     if(!res.ok){ statusEl.textContent = `Error al conectar: el servidor respondió ${res.status}. Revisá que el link sea el de "Publicar en la web" en formato CSV.`; statusEl.style.color = 'var(--coral-dark)'; return; }
     const text = await res.text();
-    const rows = parseCSV(text);
+    let rows = parseCSV(text);
+    let skipped = 0;
+    while(rows.length && rows[0].every(cell => !cell || !cell.trim())){
+      rows = rows.slice(1);
+      skipped++;
+    }
     if(rows.length < 2){ statusEl.textContent = 'La hoja respondió pero no tiene filas de datos todavía.'; statusEl.style.color = 'var(--coral-dark)'; return; }
     const headers = rows[0].map(h => h.trim().toLowerCase());
     const iPublicado = headers.indexOf('publicado');
     const totalFilas = rows.length - 1;
+    const skipNote = skipped > 0 ? ` (se ignoraron ${skipped} fila(s) en blanco al principio de la hoja)` : '';
     if(iPublicado < 0){
-      statusEl.innerHTML = `Se encontraron ${totalFilas} fila(s), pero <strong>no hay ninguna columna llamada exactamente "Publicado"</strong>. Encabezados detectados: ${headers.map(h => `"${h}"`).join(', ')}. Revisá que el nombre de la columna sea exactamente "Publicado" (sin signos de pregunta ni espacios de más).`;
+      const headerList = headers.filter(h => h).map(h => `"${h}"`).join(', ') || '(ninguno, la fila de encabezados está vacía)';
+      statusEl.innerHTML = `Se encontraron ${totalFilas} fila(s)${skipNote}, pero <strong>no hay ninguna columna llamada exactamente "Publicado"</strong>. Encabezados detectados: ${headerList}. Revisá que el nombre de la columna sea exactamente "Publicado" (sin espacios de más) y que esta URL apunte a la pestaña correcta de la hoja.`;
       statusEl.style.color = 'var(--coral-dark)';
       return;
     }
@@ -1124,7 +1136,7 @@ document.getElementById('testSheetBtn').addEventListener('click', async () => {
       const val = (r[iPublicado] || '').trim().toLowerCase();
       return val === 'publicado' || val === 'true' || val === 'si' || val === 'sí';
     }).length;
-    statusEl.innerHTML = `Conexión OK. Se encontraron ${totalFilas} fila(s) en total, de las cuales <strong>${publicadas}</strong> están marcadas como "Publicado" y deberían verse en la web.`;
+    statusEl.innerHTML = `Conexión OK${skipNote}. Se encontraron ${totalFilas} fila(s) en total, de las cuales <strong>${publicadas}</strong> están marcadas como "Publicado" y deberían verse en la web.`;
     statusEl.style.color = publicadas > 0 ? 'var(--teal-dark)' : 'var(--coral-dark)';
   } catch(e){
     statusEl.textContent = 'No se pudo conectar con esa URL. Revisá que sea el link exacto de "Publicar en la web" (termina en pub?output=csv).';
