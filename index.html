@@ -595,6 +595,11 @@ function loadContent(){
     if(!parsed.sheet || !parsed.sheet.url){
       parsed.sheet = {url: DEFAULT_CONTENT.sheet.url};
     }
+    // One-time cleanup: remove the old placeholder "Ejemplo ..." businesses that may still be
+    // sitting in a browser's saved copy from before real businesses started coming in via the form.
+    if(Array.isArray(parsed.businesses)){
+      parsed.businesses = parsed.businesses.filter(b => !/^ejemplo\s/i.test((b && b.nombre) || ''));
+    }
     return parsed;
   }catch(e){ return JSON.parse(JSON.stringify(DEFAULT_CONTENT)); }
 }
