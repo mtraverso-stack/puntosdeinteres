@@ -436,7 +436,7 @@
 
     <div class="admin-section">
       <h3>Comercios desde Google Forms</h3>
-      <p class="hint">Pegá acá el link "Publicar en la web" (formato CSV) de la hoja de respuestas de tu Google Form. Solo se muestran en la web las filas con la columna "Publicado" marcada.</p>
+      <p class="hint">Pegá acá el link "Publicar en la web" (formato CSV) de la hoja de respuestas de tu Google Form. Solo se muestran en la web las filas con la columna "Publicado" marcada. El pin en el mapa se ubica solo, buscando automáticamente la dirección cargada — puede tardar unos segundos en aparecer la primera vez, y su precisión depende de qué tan bien esté esa calle en OpenStreetMap.</p>
       <div class="admin-row full">
         <div><label class="admin-label">URL del Google Sheet publicado (CSV)</label><input class="admin-input" id="edSheetUrl" placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv"></div>
       </div>
@@ -502,15 +502,7 @@ const DEFAULT_CONTENT = {
     {"tag":"Ejemplo","title":"Reintegro con billetera digital","desc":"Pagando con MODO, débito o crédito en locales adheridos.","items":["Tope de reintegro semanal por cuenta.","Acreditación dentro de los días posteriores a la compra.","Reemplazar por los datos reales de la promoción."]},
     {"tag":"Ejemplo","title":"Descuento directo en efectivo","desc":"Beneficio adicional pagando en efectivo o transferencia.","items":["Porcentaje a definir por cada comercio.","Ideal para combinar con las cuotas bancarias.","Reemplazar por la promoción definitiva."]}
   ],
-  "businesses": [
-    {"nombre":"Ejemplo Indumentaria Norte","rubro":"indumentaria","rubroLabel":"Indumentaria","desc":"Ropa y accesorios para toda la familia.","direccion":"San Martín 450, El Trébol","image":"","lat":-32.2032,"lng":-61.7345,"links":[{"label":"WhatsApp","url":"https://wa.me/5493401111111"},{"label":"Instagram","url":"https://instagram.com/ejemploindumentaria"},{"label":"","url":""}]},
-    {"nombre":"Ejemplo Calzados del Centro","rubro":"calzado","rubroLabel":"Calzado","desc":"Calzado deportivo y urbano.","direccion":"Belgrano 210, El Trébol","image":"","lat":-32.2078,"lng":-61.7290,"links":[{"label":"WhatsApp","url":"https://wa.me/5493401111112"},{"label":"","url":""},{"label":"","url":""}]},
-    {"nombre":"Ejemplo Bar y Resto","rubro":"gastronomia","rubroLabel":"Gastronomía","desc":"Cocina de autor y tragos de la casa.","direccion":"Av. Mitre 780, El Trébol","image":"","lat":-32.2050,"lng":-61.7320,"links":[{"label":"WhatsApp","url":"https://wa.me/5493401222221"},{"label":"Instagram","url":"https://instagram.com/ejemplobar"},{"label":"Menú","url":""}]},
-    {"nombre":"Ejemplo Hogar y Deco","rubro":"hogar","rubroLabel":"Hogar y decoración","desc":"Muebles, textiles y objetos de decoración.","direccion":"Sarmiento 560, El Trébol","image":"","lat":-32.2095,"lng":-61.7355,"links":[{"label":"WhatsApp","url":"https://wa.me/5493401333331"},{"label":"","url":""},{"label":"","url":""}]},
-    {"nombre":"Ejemplo Corralón Constructor","rubro":"construccion","rubroLabel":"Construcción","desc":"Materiales de construcción y ferretería.","direccion":"Ruta 13 Km 2, El Trébol","image":"","lat":-32.2010,"lng":-61.7280,"links":[{"label":"WhatsApp","url":"https://wa.me/5493401333332"},{"label":"","url":""},{"label":"","url":""}]},
-    {"nombre":"Ejemplo Estética Integral","rubro":"salud-belleza","rubroLabel":"Salud y belleza","desc":"Tratamientos de belleza y bienestar.","direccion":"Rivadavia 340, El Trébol","image":"","lat":-32.2065,"lng":-61.7365,"links":[{"label":"WhatsApp","url":"https://wa.me/5493401444441"},{"label":"Instagram","url":"https://instagram.com/ejemploestetica"},{"label":"","url":""}]},
-    {"nombre":"Ejemplo Estudio Contable","rubro":"servicios","rubroLabel":"Servicios","desc":"Asesoramiento contable e impositivo.","direccion":"9 de Julio 125, El Trébol","image":"","lat":-32.2040,"lng":-61.7300,"links":[{"label":"WhatsApp","url":"https://wa.me/5493401555551"},{"label":"","url":""},{"label":"","url":""}]}
-  ],
+  "businesses": [],
   "contact": {
     "whatsapp": "5493401000000",
     "email": "compreloc@eltrebol.example",
@@ -665,6 +657,63 @@ function parseCSV(text){
   return rows.filter(r => !(r.length === 1 && r[0] === ''));
 }
 
+const GEOCODE_CACHE_KEY = 'elTrebolSaleGeocodeCache_v1';
+function loadGeocodeCache(){
+  try{ return JSON.parse(localStorage.getItem(GEOCODE_CACHE_KEY) || '{}'); }catch(e){ return {}; }
+}
+function saveGeocodeCache(cache){
+  try{ localStorage.setItem(GEOCODE_CACHE_KEY, JSON.stringify(cache)); }catch(e){}
+}
+function geocodeCacheKey(direccion){
+  return (direccion || '').trim().toLowerCase();
+}
+
+// Applies any addresses we've already geocoded before (cached in this browser), instantly and with no network call.
+function applyCachedCoords(list){
+  const cache = loadGeocodeCache();
+  list.forEach(b => {
+    if((b.lat == null || b.lng == null) && b.direccion){
+      const hit = cache[geocodeCacheKey(b.direccion)];
+      if(hit){ b.lat = hit.lat; b.lng = hit.lng; }
+    }
+  });
+}
+
+// Looks up one address via Nominatim (OpenStreetMap's free geocoder). May return null if the address
+// isn't found in OSM's data for the area, or the request fails.
+async function geocodeAddress(direccion){
+  const query = `${direccion}, El Trébol, Santa Fe, Argentina`;
+  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ar&q=${encodeURIComponent(query)}`;
+  try{
+    const res = await fetch(url, { headers: { 'Accept-Language': 'es' } });
+    if(!res.ok) return null;
+    const data = await res.json();
+    if(data && data[0]) return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+  }catch(e){ /* network hiccup or blocked request — just skip this one */ }
+  return null;
+}
+
+// Geocodes, one at a time with a pause between requests (Nominatim's fair-use policy asks for
+// max ~1 request/second), any business that has an address but no coordinates yet. Runs in the
+// background — as each business resolves, the map markers refresh to show its new pin.
+async function geocodeRemaining(list){
+  const cache = loadGeocodeCache();
+  let cacheDirty = false;
+  for(const b of list){
+    if(b.lat != null && b.lng != null) continue;
+    if(!b.direccion) continue;
+    const result = await geocodeAddress(b.direccion);
+    if(result){
+      b.lat = result.lat; b.lng = result.lng;
+      cache[geocodeCacheKey(b.direccion)] = result;
+      cacheDirty = true;
+      if(bizMarkerLayer) renderMapMarkers();
+    }
+    await new Promise(r => setTimeout(r, 1100));
+  }
+  if(cacheDirty) saveGeocodeCache(cache);
+}
+
 let sheetBusinesses = [];
 async function loadSheetBusinesses(){
   const url = content.sheet && content.sheet.url;
@@ -727,6 +776,8 @@ async function loadSheetBusinesses(){
         links: links
       };
     });
+    applyCachedCoords(sheetBusinesses);
+    geocodeRemaining(sheetBusinesses); // fire-and-forget: updates pins as each address resolves
   } catch(e){
     sheetBusinesses = [];
   }
@@ -846,6 +897,8 @@ async function renderAll(){
   renderPromos();
   renderFilters();
   renderLegend();
+  applyCachedCoords(content.businesses);
+  geocodeRemaining(content.businesses); // fire-and-forget: fills in pins for manually-added businesses missing coordinates
   await loadSheetBusinesses();
   updateDirectory();
   renderFooter();
