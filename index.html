@@ -49,6 +49,17 @@
   .nav-logos{display:flex; align-items:center; gap:16px;}
   .nav-logos img{height:34px; width:auto;}
   .nav-sep{width:1px; height:26px; background:var(--line);}
+  .nav-sep--minor{height:20px;}
+  .nav-brand-group{display:flex; align-items:center; gap:16px;}
+  .nav-brand-logo{height:44px !important; width:auto;}
+  .nav-program-group{display:flex; align-items:center; gap:9px;}
+  .nav-program-label{font-family:var(--font-body); font-size:11px; font-weight:800; letter-spacing:1.5px; color:var(--ink-soft); line-height:1.2; white-space:nowrap;}
+  .nav-minor-logo{height:24px !important; opacity:.82;}
+  @media (max-width:640px){
+    .nav-brand-logo{height:34px !important;}
+    .nav-minor-logo{display:none;}
+    .nav-sep--minor{display:none;}
+  }
   .nav-links{display:flex; align-items:center; gap:28px; font-weight:600; font-size:15px;}
   .nav-links a{text-decoration:none; color:var(--ink); padding:6px 0; border-bottom:2px solid transparent;}
   .nav-links a:hover{border-color:var(--teal);}
@@ -195,13 +206,18 @@
 <header class="site">
   <div class="wrap nav">
     <div class="nav-logos">
-      <img data-logo="puntosInteres" alt="Puntos de Interés — El Trébol" style="height:52px;">
+      <div class="nav-brand-group">
+        <img data-logo="puntosInteres" alt="Puntos de Interés — El Trébol" class="nav-brand-logo">
+      </div>
       <span class="nav-sep"></span>
-      <img data-logo="compre" alt="Compre Local" style="height:38px; border-radius:6px;">
-      <span class="nav-sep"></span>
-      <img data-logo="trebol" alt="El Trébol nos une" style="height:34px;">
-      <span class="nav-sep"></span>
-      <img data-logo="produccion" alt="Dirección de Producción" style="height:34px;">
+      <div class="nav-program-group">
+        <span class="nav-program-label">PROGRAMA</span>
+        <img data-logo="compre" alt="Compre Local" class="nav-brand-logo" style="border-radius:6px;">
+      </div>
+      <span class="nav-sep nav-sep--minor"></span>
+      <img data-logo="trebol" alt="El Trébol nos une" class="nav-minor-logo">
+      <span class="nav-sep nav-sep--minor"></span>
+      <img data-logo="produccion" alt="Dirección de Producción" class="nav-minor-logo">
     </div>
     <nav class="nav-links" id="navLinks">
       <a href="#promociones">Promociones</a>
