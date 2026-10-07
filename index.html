@@ -85,6 +85,35 @@
   @media (max-width:520px){
     .hero-brand--program{flex-direction:column; gap:6px;}
   }
+  .nav-brand-logo{height:40px !important;}
+  .ofertas-carousel{position:relative;}
+  .of-track{display:flex; gap:20px; overflow-x:auto; scroll-snap-type:x mandatory; scroll-behavior:smooth; padding:6px 2px 14px; scrollbar-width:none;}
+  .of-track::-webkit-scrollbar{display:none;}
+  .of-card{flex:0 0 calc((100% - 40px)/3); scroll-snap-align:start; border:1px solid var(--line); border-radius:18px; background:var(--paper); overflow:hidden; cursor:pointer; display:flex; flex-direction:column; transition:transform .2s, box-shadow .2s; text-align:left; padding:0; font:inherit; color:inherit;}
+  .of-card:hover{transform:translateY(-3px); box-shadow:0 10px 24px rgba(0,0,0,.12);}
+  .of-img{width:100%; aspect-ratio:4/3; background:var(--paper-tint) center/cover no-repeat; display:flex; align-items:center; justify-content:center; font-size:46px;}
+  .of-body{padding:16px 18px 20px; display:flex; flex-direction:column; gap:6px;}
+  .of-biz{font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--teal);}
+  .of-title{font-family:var(--font-body); font-weight:700; font-size:20px; margin:0;}
+  .of-until{font-size:13px; color:var(--ink-soft);}
+  .of-arrow{position:absolute; top:42%; transform:translateY(-50%); width:44px; height:44px; border-radius:50%; border:none; background:#fff; box-shadow:0 2px 10px rgba(0,0,0,.25); font-size:28px; line-height:1; cursor:pointer; z-index:2; color:var(--ink);}
+  .of-prev{left:-14px;} .of-next{right:-14px;}
+  .of-dots{display:flex; justify-content:center; gap:8px; margin-top:6px; flex-wrap:wrap;}
+  .of-dot{width:9px; height:9px; border-radius:50%; background:var(--line); border:none; padding:0; cursor:pointer;}
+  .of-dot.active{background:var(--teal); transform:scale(1.25);}
+  .of-empty{text-align:center; color:var(--ink-soft); background:var(--paper-tint); border-radius:14px; padding:26px;}
+  .of-cta{text-align:center; margin-top:22px;}
+  .of-modal-overlay{position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:100000; display:none; align-items:center; justify-content:center; padding:20px;}
+  .of-modal-overlay.open{display:flex;}
+  .of-modal{background:#fff; border-radius:20px; max-width:520px; width:100%; max-height:90vh; overflow:auto; position:relative;}
+  .of-modal-close{position:absolute; top:10px; right:12px; width:36px; height:36px; border-radius:50%; border:none; background:rgba(255,255,255,.95); font-size:24px; cursor:pointer; z-index:2;}
+  .of-modal .of-img{aspect-ratio:auto; min-height:180px; max-height:60vh;}
+  .of-modal img.of-full{width:100%; display:block;}
+  .of-modal-text{padding:20px 24px 26px; display:flex; flex-direction:column; gap:10px;}
+  @media (max-width:900px){ .of-card{flex-basis:calc((100% - 20px)/2);} }
+  @media (max-width:600px){ .of-card{flex-basis:88%;} .of-arrow{display:none;} }
+  .hero-title h1{font-size:clamp(40px,7vw,72px); color:#fff; letter-spacing:.01em; margin:0 0 12px;}
+  .hero-title p{font-size:clamp(16px,2.2vw,20px); font-weight:600; margin:0; opacity:.95; max-width:560px;}
   .hero-dates{margin-top:18px; font-weight:600; font-size:15px; color:#fff; opacity:.9;}
   .hero-actions{display:flex; gap:16px; flex-wrap:wrap;}
 
@@ -213,21 +242,12 @@
 <header class="site">
   <div class="wrap nav">
     <div class="nav-logos">
-      <div class="nav-brand-group">
-        <img data-logo="puntosInteres" alt="Puntos de Interés — El Trébol" class="nav-brand-logo">
-      </div>
+      <img data-logo="trebol" alt="El Trébol nos une" class="nav-brand-logo">
       <span class="nav-sep"></span>
-      <div class="nav-program-group">
-        <span class="nav-program-label">PROGRAMA</span>
-        <img data-logo="compre" alt="Compre Local" class="nav-brand-logo" style="border-radius:6px;">
-      </div>
-      <span class="nav-sep nav-sep--minor"></span>
-      <img data-logo="trebol" alt="El Trébol nos une" class="nav-minor-logo">
-      <span class="nav-sep nav-sep--minor"></span>
-      <img data-logo="produccion" alt="Dirección de Producción" class="nav-minor-logo">
+      <img data-logo="produccion" alt="Dirección de Producción" class="nav-brand-logo">
     </div>
     <nav class="nav-links" id="navLinks">
-      <a href="#promociones">Promociones</a>
+      <a href="#ofertas">Ofertas</a>
       <a href="#comercios">Comercios</a>
       <a href="#sumar" class="nav-cta">Sumar mi comercio</a>
     </nav>
@@ -243,14 +263,9 @@
     <span class="hb-dots"></span>
   </div>
   <div class="wrap hero-inner">
-    <div class="hero-frame">
-      <div class="hero-brand">
-        <img data-logo="puntosInteres" alt="Puntos de Interés">
-      </div>
-      <div class="hero-brand hero-brand--program">
-        <span class="hero-program-label">PROGRAMA</span>
-        <img data-logo="compre" alt="Compre Local" style="border-radius:6px;">
-      </div>
+    <div class="hero-title">
+      <h1>Puntos de Interés</h1>
+      <p>Directorio de comercios y lugares de El Trébol, Santa Fe · Programa Compre Local</p>
     </div>
     <div class="hero-actions">
       <a href="#comercios" class="btn btn--light">Ver comercios adheridos</a>
@@ -266,17 +281,30 @@
   </div>
 </div>
 
-<section class="section" id="promociones">
+<section class="section" id="ofertas">
   <div class="wrap">
     <div class="section-head">
-      <p class="eyebrow">Beneficios exclusivos</p>
-      <h2>Comprá con descuentos y pagá en cuotas</h2>
-      <p>Los comercios adheridos a Puntos de Interés ofrecen condiciones especiales de pago.</p>
+      <p class="eyebrow">Beneficios y promociones</p>
+      <h2>Ofertas del momento</h2>
+      <p>Promociones que publican los comercios de El Trébol. ¿Tenés una? Cargala con foto y aparece acá.</p>
     </div>
-    <div class="promo-grid" id="promoGrid"></div>
-    <p class="promo-note"><span class="clover">🍀</span> Este contenido se edita desde el panel "Editar sitio" (abajo a la derecha).</p>
+    <div class="ofertas-carousel" id="ofertasCarousel" style="display:none;">
+      <button type="button" class="of-arrow of-prev" id="ofPrev" aria-label="Anterior">‹</button>
+      <div class="of-track" id="ofTrack"></div>
+      <button type="button" class="of-arrow of-next" id="ofNext" aria-label="Siguiente">›</button>
+      <div class="of-dots" id="ofDots"></div>
+    </div>
+    <p class="of-empty" id="ofEmpty" style="display:none;">Todavía no hay ofertas publicadas. ¡Sé el primero en cargar la tuya!</p>
+    <div class="of-cta"><a href="#" target="_blank" rel="noopener" class="btn btn--teal" id="ofertaFormLink" style="display:none;">Publicar mi oferta</a></div>
   </div>
 </section>
+
+<div class="of-modal-overlay" id="ofModal" aria-hidden="true">
+  <div class="of-modal">
+    <button type="button" class="of-modal-close" id="ofModalClose" aria-label="Cerrar">×</button>
+    <div id="ofModalBody"></div>
+  </div>
+</div>
 
 <section class="section directory" id="comercios">
   <div class="wrap">
@@ -349,7 +377,7 @@
       <div class="footer-col">
         <h4>Mapa del sitio</h4>
         <ul>
-          <li><a href="#promociones">Promociones bancarias</a></li>
+          <li><a href="#ofertas">Ofertas</a></li>
           <li><a href="#comercios">Directorio de comercios</a></li>
           <li><a href="#sumar">Sumar mi comercio</a></li>
         </ul>
@@ -431,8 +459,14 @@
     </div>
 
     <div class="admin-section">
-      <h3>Promociones (3 tarjetas)</h3>
-      <div id="promoEditWrap"></div>
+      <h3>Ofertas desde Google Forms</h3>
+      <p class="hint">Pegá el link CSV de la hoja de respuestas del formulario de ofertas y el link del formulario (para el botón "Publicar mi oferta"). Solo salen en el carrusel las filas con "Publicado", y se ocultan solas al pasar la fecha "Válida hasta".</p>
+      <div class="admin-row full">
+        <div><label class="admin-label">URL de la hoja de ofertas publicada (CSV)</label><input class="admin-input" id="edOfertasUrl" placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv"></div>
+      </div>
+      <div class="admin-row full">
+        <div><label class="admin-label">Link del Google Form de ofertas</label><input class="admin-input" id="edOfertasForm" placeholder="https://docs.google.com/forms/d/e/.../viewform"></div>
+      </div>
     </div>
 
     <div class="admin-section">
@@ -526,11 +560,7 @@ const DEFAULT_CONTENT = {
   "hero": {
     "dates": "Descubrí comercios y lugares de El Trébol, Santa Fe"
   },
-  "promos": [
-    {"tag":"Ejemplo","title":"3 y 6 cuotas sin interés","desc":"Con tarjetas de crédito de bancos locales, en rubros seleccionados.","items":["Sin costo financiero para el cliente.","Válido en comercios adheridos.","Reemplazar por el acuerdo real con tu entidad bancaria."]},
-    {"tag":"Ejemplo","title":"Reintegro con billetera digital","desc":"Pagando con MODO, débito o crédito en locales adheridos.","items":["Tope de reintegro semanal por cuenta.","Acreditación dentro de los días posteriores a la compra.","Reemplazar por los datos reales de la promoción."]},
-    {"tag":"Ejemplo","title":"Descuento directo en efectivo","desc":"Beneficio adicional pagando en efectivo o transferencia.","items":["Porcentaje a definir por cada comercio.","Ideal para combinar con las cuotas bancarias.","Reemplazar por la promoción definitiva."]}
-  ],
+  "ofertas": {"url": "", "formUrl": ""},
   "businesses": [],
   "contact": {
     "whatsapp": "5493401000000",
@@ -621,7 +651,8 @@ function loadContent(){
     const raw = localStorage.getItem(STORAGE_KEY);
     if(!raw) return JSON.parse(JSON.stringify(DEFAULT_CONTENT));
     const parsed = JSON.parse(raw);
-    if(!parsed.sheet || !parsed.sheet.url){
+    if(!parsed.ofertas){ parsed.ofertas = JSON.parse(JSON.stringify(DEFAULT_CONTENT.ofertas)); }
+          if(!parsed.sheet || !parsed.sheet.url){
       parsed.sheet = {url: DEFAULT_CONTENT.sheet.url};
     }
     // One-time cleanup: remove the old placeholder "Ejemplo ..." businesses that may still be
@@ -644,20 +675,117 @@ function setLogoImgs(){
   document.querySelectorAll('img[data-logo="hero"]').forEach(img => img.src = content.logos.hero);
 }
 
-function renderPromos(){
-  const wrap = document.getElementById('promoGrid');
-  wrap.innerHTML = '';
-  content.promos.forEach((p, i) => {
-    const div = document.createElement('div');
-    div.className = 'promo-card';
-    div.innerHTML = `
-      <span class="tag tag--${i % 3}">${p.tag}</span>
-      <h3>${p.title}</h3>
-      <p class="desc">${p.desc}</p>
-      <ul>${p.items.map(it => `<li>${it}</li>`).join('')}</ul>`;
-    wrap.appendChild(div);
-  });
+let ofertasList = [];
+function parseOfertaDate(str){
+  if(!str) return null;
+  str = str.trim();
+  let m = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  if(m) return new Date(+m[3], +m[2]-1, +m[1], 23, 59, 59);
+  m = str.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+  if(m) return new Date(+m[1], +m[2]-1, +m[3], 23, 59, 59);
+  return null;
 }
+function escHtml(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+async function loadOfertas(){
+  ofertasList = [];
+  const url = content.ofertas && content.ofertas.url;
+  if(url){
+    try{
+      const res = await fetch(url);
+      let rows = parseCSV(await res.text());
+      while(rows.length && rows[0].every(c => !c || !c.trim())) rows = rows.slice(1);
+      if(rows.length >= 2){
+        const headers = rows[0].map(h => h.trim().toLowerCase());
+        const idx = k => headers.findIndex(h => h.startsWith(k));
+        const iCom = idx('comercio') >= 0 ? idx('comercio') : idx('nombre');
+        const iTit = idx('título') >= 0 ? idx('título') : idx('titulo');
+        const iDesc = idx('descripci');
+        const iFoto = idx('foto');
+        const iHasta = idx('válida') >= 0 ? idx('válida') : idx('valida');
+        const iWa = idx('whatsapp');
+        const iPub = idx('publicado');
+        const now = new Date();
+        ofertasList = rows.slice(1).filter(r => {
+          const v = (iPub >= 0 ? (r[iPub] || '') : '').trim().toLowerCase();
+          if(!(v === 'publicado' || v === 'true' || v === 'si' || v === 'sí')) return false;
+          const d = iHasta >= 0 ? parseOfertaDate(r[iHasta]) : null;
+          return !d || d >= now; // sin fecha = no vence; con fecha vencida = se oculta
+        }).map(r => {
+          const m = iFoto >= 0 && r[iFoto] ? r[iFoto].match(/[-\w]{25,}/) : null;
+          return {
+            comercio: iCom >= 0 ? r[iCom] : '',
+            titulo: iTit >= 0 ? r[iTit] : '',
+            desc: iDesc >= 0 ? r[iDesc] : '',
+            foto: m ? `https://drive.google.com/thumbnail?id=${m[0]}&sz=w1000` : '',
+            hasta: iHasta >= 0 ? r[iHasta] : '',
+            wa: iWa >= 0 ? (r[iWa] || '').replace(/\D/g,'') : ''
+          };
+        }).reverse(); // las más nuevas primero
+      }
+    }catch(e){ ofertasList = []; }
+  }
+  renderOfertas();
+}
+
+let ofTimer = null;
+function renderOfertas(){
+  const box = document.getElementById('ofertasCarousel');
+  const track = document.getElementById('ofTrack');
+  const dots = document.getElementById('ofDots');
+  const empty = document.getElementById('ofEmpty');
+  const link = document.getElementById('ofertaFormLink');
+  const formUrl = content.ofertas && content.ofertas.formUrl;
+  if(formUrl){ link.href = formUrl; link.style.display = 'inline-flex'; } else { link.style.display = 'none'; }
+  clearInterval(ofTimer);
+  track.innerHTML = ''; dots.innerHTML = '';
+  if(!ofertasList.length){ box.style.display = 'none'; empty.style.display = formUrl ? 'block' : 'none'; return; }
+  empty.style.display = 'none'; box.style.display = 'block';
+  ofertasList.forEach((o, i) => {
+    const card = document.createElement('button');
+    card.type = 'button'; card.className = 'of-card';
+    card.innerHTML = `<div class="of-img" ${o.foto ? `style="background-image:url('${o.foto}')"` : ''}>${o.foto ? '' : '🍀'}</div>
+      <div class="of-body"><span class="of-biz">${escHtml(o.comercio)}</span><h3 class="of-title">${escHtml(o.titulo)}</h3>${o.hasta ? `<span class="of-until">Válida hasta ${escHtml(o.hasta)}</span>` : ''}</div>`;
+    card.addEventListener('click', () => openOferta(o));
+    track.appendChild(card);
+    const d = document.createElement('button');
+    d.type = 'button'; d.className = 'of-dot'; d.setAttribute('aria-label', 'Oferta ' + (i+1));
+    d.addEventListener('click', () => track.scrollTo({left: track.children[i].offsetLeft - track.offsetLeft, behavior:'smooth'}));
+    dots.appendChild(d);
+  });
+  const step = () => (track.children[0] ? track.children[0].getBoundingClientRect().width + 20 : 300);
+  const updateDots = () => {
+    const i = Math.round(track.scrollLeft / step());
+    Array.from(dots.children).forEach((d, k) => d.classList.toggle('active', k === i));
+  };
+  track.onscroll = updateDots; updateDots();
+  document.getElementById('ofPrev').onclick = () => track.scrollBy({left: -step(), behavior:'smooth'});
+  document.getElementById('ofNext').onclick = () => track.scrollBy({left: step(), behavior:'smooth'});
+  let paused = false;
+  box.onmouseenter = () => paused = true; box.onmouseleave = () => paused = false;
+  box.ontouchstart = () => paused = true;
+  ofTimer = setInterval(() => {
+    if(paused || document.getElementById('ofModal').classList.contains('open')) return;
+    const atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
+    if(atEnd) track.scrollTo({left:0, behavior:'smooth'}); else track.scrollBy({left: step(), behavior:'smooth'});
+  }, 4500);
+}
+
+function openOferta(o){
+  const body = document.getElementById('ofModalBody');
+  body.innerHTML = `${o.foto ? `<img class="of-full" src="${o.foto}" alt="" onerror="this.style.display='none';">` : ''}
+    <div class="of-modal-text"><span class="of-biz">${escHtml(o.comercio)}</span>
+    <h3 class="of-title" style="font-size:24px;">${escHtml(o.titulo)}</h3>
+    ${o.desc ? `<p style="margin:0; color:var(--ink-soft); white-space:pre-line;">${escHtml(o.desc)}</p>` : ''}
+    ${o.hasta ? `<span class="of-until">Válida hasta ${escHtml(o.hasta)}</span>` : ''}
+    ${o.wa ? `<a class="btn btn--teal" target="_blank" rel="noopener" href="https://wa.me/${o.wa}" style="justify-content:center;">Consultar por WhatsApp</a>` : ''}</div>`;
+  const m = document.getElementById('ofModal');
+  m.classList.add('open'); m.setAttribute('aria-hidden','false');
+}
+function closeOferta(){ const m = document.getElementById('ofModal'); m.classList.remove('open'); m.setAttribute('aria-hidden','true'); }
+document.getElementById('ofModalClose').addEventListener('click', closeOferta);
+document.getElementById('ofModal').addEventListener('click', e => { if(e.target.id === 'ofModal') closeOferta(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeOferta(); });
 
 function getFilteredBusinesses(){
   const all = content.businesses.concat(sheetBusinesses);
@@ -928,11 +1056,11 @@ function renderFooter(){
 async function renderAll(){
   rebuildRubroMaps();
   setLogoImgs();
-  renderPromos();
   renderFilters();
   renderLegend();
   applyCachedCoords(content.businesses);
   geocodeRemaining(content.businesses); // fire-and-forget: fills in pins for manually-added businesses missing coordinates
+  loadOfertas();
   await loadSheetBusinesses();
   updateDirectory();
   renderFooter();
@@ -1076,23 +1204,9 @@ function fillEditorForm(){
   document.getElementById('edFormUrl').value = content.contact.formUrl || '';
   document.getElementById('edSheetUrl').value = (content.sheet && content.sheet.url) || '';
 
-  const promoWrap = document.getElementById('promoEditWrap');
-  promoWrap.innerHTML = '';
-  content.promos.forEach((p) => {
-    const div = document.createElement('div');
-    div.className = 'biz-edit-row';
-    div.style.gridTemplateColumns = '1fr';
-    div.innerHTML = `
-      <label class="admin-label">Etiqueta</label>
-      <input class="admin-input promo-tag" value="${escapeAttr(p.tag)}">
-      <label class="admin-label">Título</label>
-      <input class="admin-input promo-title" value="${escapeAttr(p.title)}">
-      <label class="admin-label">Descripción corta</label>
-      <input class="admin-input promo-desc" value="${escapeAttr(p.desc)}">
-      <label class="admin-label">Puntos (uno por línea)</label>
-      <textarea class="admin-textarea promo-items">${p.items.join('\n')}</textarea>`;
-    promoWrap.appendChild(div);
-  });
+  content.ofertas = content.ofertas || {url:'', formUrl:''};
+  document.getElementById('edOfertasUrl').value = content.ofertas.url || '';
+  document.getElementById('edOfertasForm').value = content.ofertas.formUrl || '';
 
   const rubroWrap = document.getElementById('rubroEditWrap');
   rubroWrap.innerHTML = '';
@@ -1307,13 +1421,7 @@ function collectFormIntoContent(){
     icon: row.querySelector('.rubro-icon').value
   }));
 
-  const promoRows = document.querySelectorAll('#promoEditWrap .biz-edit-row');
-  content.promos = Array.from(promoRows).map(row => ({
-    tag: row.querySelector('.promo-tag').value,
-    title: row.querySelector('.promo-title').value,
-    desc: row.querySelector('.promo-desc').value,
-    items: row.querySelector('.promo-items').value.split('\n').map(s => s.trim()).filter(Boolean)
-  }));
+  content.ofertas = {url: document.getElementById('edOfertasUrl').value.trim(), formUrl: document.getElementById('edOfertasForm').value.trim()};
 
   const bizRows = document.querySelectorAll('#bizEditWrap .biz-edit-row');
   content.businesses = Array.from(bizRows).map(row => {
