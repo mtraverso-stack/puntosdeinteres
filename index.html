@@ -286,7 +286,7 @@
     <div class="section-head">
       <p class="eyebrow">Beneficios y promociones</p>
       <h2>Ofertas del momento</h2>
-      <p>Promociones que publican los comercios de El Trébol. ¿Tenés una? Cargala con foto y aparece acá.</p>
+      <p>Promociones que publican los comercios adheridos. ¿Tenés una? Cargala con foto y aparece acá.</p>
     </div>
     <div class="ofertas-carousel" id="ofertasCarousel" style="display:none;">
       <button type="button" class="of-arrow of-prev" id="ofPrev" aria-label="Anterior">‹</button>
@@ -295,7 +295,7 @@
       <div class="of-dots" id="ofDots"></div>
     </div>
     <p class="of-empty" id="ofEmpty" style="display:none;">Todavía no hay ofertas publicadas. ¡Sé el primero en cargar la tuya!</p>
-    <div class="of-cta"><a href="#" target="_blank" rel="noopener" class="btn btn--teal" id="ofertaFormLink" style="display:none;">Publicar mi oferta</a></div>
+    <div class="of-cta"><a href="#" target="_blank" rel="noopener" class="btn btn--teal" id="ofertaFormLink" style="display:none;">Si querés publicar una oferta, hacé clic aquí</a></div>
   </div>
 </section>
 
@@ -460,7 +460,7 @@
 
     <div class="admin-section">
       <h3>Ofertas desde Google Forms</h3>
-      <p class="hint">Pegá el link CSV de la hoja de respuestas del formulario de ofertas y el link del formulario (para el botón "Publicar mi oferta"). Solo salen en el carrusel las filas con "Publicado", y se ocultan solas al pasar la fecha "Válida hasta".</p>
+      <p class="hint">Pegá el link CSV de la hoja de respuestas del formulario de ofertas y el link del formulario (para el botón "Publicar mi oferta"). Columnas esperadas: CUIT del comercio, Título de la oferta, Texto descriptivo, Foto o imagen, y "Publicado". El nombre del comercio y su WhatsApp se toman solos de la hoja de comercios a partir del CUIT. Solo salen las filas con "Publicado".</p>
       <div class="admin-row full">
         <div><label class="admin-label">URL de la hoja de ofertas publicada (CSV)</label><input class="admin-input" id="edOfertasUrl" placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv"></div>
       </div>
@@ -560,7 +560,7 @@ const DEFAULT_CONTENT = {
   "hero": {
     "dates": "Descubrí comercios y lugares de El Trébol, Santa Fe"
   },
-  "ofertas": {"url": "", "formUrl": ""},
+  "ofertas": {"url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQtjtiQy5rIqHJfYXvjGnNzJUVqvGBBacuOb1dE1D0B7TWqLavsgNvWo1DvEN88QRuxF36nWMjtWhLv/pub?gid=1070741508&single=true&output=csv", "formUrl": "https://docs.google.com/forms/d/e/1FAIpQLSdqMZkfZVNmHWmfLVmm7CvWGAbqHbesjSZEMxQxpGA5D2Jasg/viewform"},
   "businesses": [],
   "contact": {
     "whatsapp": "5493401000000",
@@ -652,6 +652,8 @@ function loadContent(){
     if(!raw) return JSON.parse(JSON.stringify(DEFAULT_CONTENT));
     const parsed = JSON.parse(raw);
     if(!parsed.ofertas){ parsed.ofertas = JSON.parse(JSON.stringify(DEFAULT_CONTENT.ofertas)); }
+          if(!parsed.ofertas.url){ parsed.ofertas.url = DEFAULT_CONTENT.ofertas.url; }
+          if(!parsed.ofertas.formUrl){ parsed.ofertas.formUrl = DEFAULT_CONTENT.ofertas.formUrl; }
           if(!parsed.sheet || !parsed.sheet.url){
       parsed.sheet = {url: DEFAULT_CONTENT.sheet.url};
     }
@@ -700,8 +702,9 @@ async function loadOfertas(){
         const idx = k => headers.findIndex(h => h.startsWith(k));
         const iCom = idx('comercio') >= 0 ? idx('comercio') : idx('nombre');
         const iTit = idx('título') >= 0 ? idx('título') : idx('titulo');
-        const iDesc = idx('descripci');
-        const iFoto = idx('foto');
+        const iCuit = idx('cuit');
+        const iDesc = idx('texto') >= 0 ? idx('texto') : idx('descripci');
+        const iFoto = idx('foto') >= 0 ? idx('foto') : idx('imagen');
         const iHasta = idx('válida') >= 0 ? idx('válida') : idx('valida');
         const iWa = idx('whatsapp');
         const iPub = idx('publicado');
@@ -713,13 +716,16 @@ async function loadOfertas(){
           return !d || d >= now; // sin fecha = no vence; con fecha vencida = se oculta
         }).map(r => {
           const m = iFoto >= 0 && r[iFoto] ? r[iFoto].match(/[-\w]{25,}/) : null;
+          const cuit = iCuit >= 0 ? (r[iCuit] || '').replace(/\D/g,'') : '';
+          const biz = cuit ? sheetBusinesses.find(b => b.cuit && b.cuit === cuit) : null;
+          const bizWa = biz ? ((biz.links || []).find(l => l.label === 'WhatsApp') || {}).url : '';
           return {
-            comercio: iCom >= 0 ? r[iCom] : '',
+            comercio: iCom >= 0 && r[iCom] ? r[iCom] : (biz ? biz.nombre : ''),
             titulo: iTit >= 0 ? r[iTit] : '',
             desc: iDesc >= 0 ? r[iDesc] : '',
             foto: m ? `https://drive.google.com/thumbnail?id=${m[0]}&sz=w1000` : '',
             hasta: iHasta >= 0 ? r[iHasta] : '',
-            wa: iWa >= 0 ? (r[iWa] || '').replace(/\D/g,'') : ''
+            wa: iWa >= 0 && r[iWa] ? (r[iWa] || '').replace(/\D/g,'') : (bizWa ? bizWa.replace(/\D/g,'') : '')
           };
         }).reverse(); // las más nuevas primero
       }
@@ -745,7 +751,7 @@ function renderOfertas(){
     const card = document.createElement('button');
     card.type = 'button'; card.className = 'of-card';
     card.innerHTML = `<div class="of-img" ${o.foto ? `style="background-image:url('${o.foto}')"` : ''}>${o.foto ? '' : '🍀'}</div>
-      <div class="of-body"><span class="of-biz">${escHtml(o.comercio)}</span><h3 class="of-title">${escHtml(o.titulo)}</h3>${o.hasta ? `<span class="of-until">Válida hasta ${escHtml(o.hasta)}</span>` : ''}</div>`;
+      <div class="of-body">${o.comercio ? `<span class="of-biz">${escHtml(o.comercio)}</span>` : ''}<h3 class="of-title">${escHtml(o.titulo)}</h3>${o.hasta ? `<span class="of-until">Válida hasta ${escHtml(o.hasta)}</span>` : ''}</div>`;
     card.addEventListener('click', () => openOferta(o));
     track.appendChild(card);
     const d = document.createElement('button');
@@ -904,6 +910,7 @@ async function loadSheetBusinesses(){
     const iEmail = idx('email');
     const iPublicado = idx('publicado');
     const iLogo = idx('logo');
+    const iCuit = idx('cuit');
     const REV_RUBRO = {};
     Object.entries(RUBRO_LABELS).forEach(([slug, label]) => { REV_RUBRO[label.toLowerCase()] = slug; });
 
@@ -933,6 +940,7 @@ async function loadSheetBusinesses(){
         desc: iDesc >= 0 ? r[iDesc] : '',
         direccion: iDireccion >= 0 ? r[iDireccion] : '',
         image: iLogo >= 0 ? driveImageUrl(r[iLogo]) : '',
+        cuit: iCuit >= 0 ? (r[iCuit] || '').replace(/\D/g,'') : '',
         lat: null,
         lng: null,
         links: links
@@ -1060,9 +1068,9 @@ async function renderAll(){
   renderLegend();
   applyCachedCoords(content.businesses);
   geocodeRemaining(content.businesses); // fire-and-forget: fills in pins for manually-added businesses missing coordinates
-  loadOfertas();
   await loadSheetBusinesses();
   updateDirectory();
+  loadOfertas();
   renderFooter();
 }
 
