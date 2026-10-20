@@ -460,7 +460,7 @@
 
     <div class="admin-section">
       <h3>Ofertas desde Google Forms</h3>
-      <p class="hint">Pegá el link CSV de la hoja de respuestas del formulario de ofertas y el link del formulario (para el botón "Publicar mi oferta"). Columnas esperadas: CUIT del comercio, Título de la oferta, Texto descriptivo, Foto o imagen, y "Publicado". El nombre del comercio y su WhatsApp se toman solos de la hoja de comercios a partir del CUIT. Solo salen las filas con "Publicado".</p>
+      <p class="hint">Pegá el link CSV de la hoja de respuestas del formulario de ofertas y el link del formulario (para el botón "Publicar mi oferta"). Columnas esperadas: CUIT del comercio, Título de la oferta, Texto descriptivo, Foto o imagen, y "Estado" (columna K). El nombre del comercio y su WhatsApp se toman solos de la hoja de comercios a partir del CUIT. Solo salen las filas con "OK" en la columna Estado.</p>
       <div class="admin-row full">
         <div><label class="admin-label">URL de la hoja de ofertas publicada (CSV)</label><input class="admin-input" id="edOfertasUrl" placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv"></div>
       </div>
@@ -707,11 +707,12 @@ async function loadOfertas(){
         const iFoto = idx('foto') >= 0 ? idx('foto') : idx('imagen');
         const iHasta = idx('válida') >= 0 ? idx('válida') : idx('valida');
         const iWa = idx('whatsapp');
-        const iPub = idx('publicado');
+        // La oferta se publica cuando la columna "Estado" (columna K) dice OK
+        const iPub = idx('estado') >= 0 ? idx('estado') : 10;
         const now = new Date();
         ofertasList = rows.slice(1).filter(r => {
-          const v = (iPub >= 0 ? (r[iPub] || '') : '').trim().toLowerCase();
-          if(!(v === 'publicado' || v === 'true' || v === 'si' || v === 'sí')) return false;
+          const v = (r[iPub] || '').trim().toLowerCase();
+          if(v !== 'ok') return false;
           const d = iHasta >= 0 ? parseOfertaDate(r[iHasta]) : null;
           return !d || d >= now; // sin fecha = no vence; con fecha vencida = se oculta
         }).map(r => {
