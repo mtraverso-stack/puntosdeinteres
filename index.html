@@ -247,8 +247,8 @@
       <img data-logo="produccion" alt="Dirección de Producción" class="nav-brand-logo">
     </div>
     <nav class="nav-links" id="navLinks">
-      <a href="#ofertas">Ofertas</a>
       <a href="#comercios">Comercios</a>
+      <a href="#ofertas">Ofertas</a>
       <a href="#sumar" class="nav-cta">Sumar mi comercio</a>
     </nav>
     <button class="nav-toggle" id="navToggle" aria-label="Abrir menú">☰</button>
@@ -280,24 +280,6 @@
     <span>Programa Compre Local · El Trébol, Santa Fe</span>
   </div>
 </div>
-
-<section class="section" id="ofertas">
-  <div class="wrap">
-    <div class="section-head">
-      <p class="eyebrow">Beneficios y promociones</p>
-      <h2>Ofertas del momento</h2>
-      <p>Promociones que publican los comercios adheridos. ¿Tenés una? Cargala con foto y aparece acá.</p>
-    </div>
-    <div class="ofertas-carousel" id="ofertasCarousel" style="display:none;">
-      <button type="button" class="of-arrow of-prev" id="ofPrev" aria-label="Anterior">‹</button>
-      <div class="of-track" id="ofTrack"></div>
-      <button type="button" class="of-arrow of-next" id="ofNext" aria-label="Siguiente">›</button>
-      <div class="of-dots" id="ofDots"></div>
-    </div>
-    <p class="of-empty" id="ofEmpty" style="display:none;">Todavía no hay ofertas publicadas. ¡Sé el primero en cargar la tuya!</p>
-    <div class="of-cta"><a href="#" target="_blank" rel="noopener" class="btn btn--teal" id="ofertaFormLink" style="display:none;">Si querés publicar una oferta, hacé clic aquí</a></div>
-  </div>
-</section>
 
 <div class="of-modal-overlay" id="ofModal" aria-hidden="true">
   <div class="of-modal">
@@ -331,6 +313,24 @@
     <div class="map-legend" id="mapLegend"></div>
     <div class="biz-grid" id="bizGrid"></div>
     <p class="biz-empty" id="bizEmpty">No hay comercios que coincidan con la búsqueda.</p>
+  </div>
+</section>
+
+<section class="section" id="ofertas">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Beneficios y promociones</p>
+      <h2>Ofertas del momento</h2>
+      <p>Promociones que publican los comercios adheridos. ¿Tenés una? Cargala con foto y aparece acá.</p>
+    </div>
+    <div class="ofertas-carousel" id="ofertasCarousel" style="display:none;">
+      <button type="button" class="of-arrow of-prev" id="ofPrev" aria-label="Anterior">‹</button>
+      <div class="of-track" id="ofTrack"></div>
+      <button type="button" class="of-arrow of-next" id="ofNext" aria-label="Siguiente">›</button>
+      <div class="of-dots" id="ofDots"></div>
+    </div>
+    <p class="of-empty" id="ofEmpty" style="display:none;">Todavía no hay ofertas publicadas. ¡Sé el primero en cargar la tuya!</p>
+    <div class="of-cta"><a href="#" target="_blank" rel="noopener" class="btn btn--teal" id="ofertaFormLink" style="display:none;">Si querés publicar una oferta, hacé clic aquí</a></div>
   </div>
 </section>
 
@@ -377,8 +377,8 @@
       <div class="footer-col">
         <h4>Mapa del sitio</h4>
         <ul>
-          <li><a href="#ofertas">Ofertas</a></li>
           <li><a href="#comercios">Directorio de comercios</a></li>
+          <li><a href="#ofertas">Ofertas</a></li>
           <li><a href="#sumar">Sumar mi comercio</a></li>
         </ul>
       </div>
@@ -677,6 +677,17 @@ function setLogoImgs(){
   document.querySelectorAll('img[data-logo="hero"]').forEach(img => img.src = content.logos.hero);
 }
 
+// Las fotos de Google Drive a veces no cargan en celulares con una sola URL; probamos otras antes de ocultarla.
+function imgFallback(img){
+  const m = (img.dataset.src0 || img.src).match(/[-\w]{25,}/);
+  if(!img.dataset.src0) img.dataset.src0 = img.src;
+  const step = +(img.dataset.step || 0) + 1;
+  img.dataset.step = step;
+  if(m && step === 1){ img.src = 'https://drive.google.com/thumbnail?id=' + m[0] + '&sz=w1000'; return; }
+  if(m && step === 2){ img.src = 'https://drive.google.com/uc?export=view&id=' + m[0]; return; }
+  img.style.display = 'none';
+}
+
 let ofertasList = [];
 function parseOfertaDate(str){
   if(!str) return null;
@@ -724,7 +735,7 @@ async function loadOfertas(){
             comercio: iCom >= 0 && r[iCom] ? r[iCom] : (biz ? biz.nombre : ''),
             titulo: iTit >= 0 ? r[iTit] : '',
             desc: iDesc >= 0 ? r[iDesc] : '',
-            foto: m ? `https://drive.google.com/thumbnail?id=${m[0]}&sz=w1000` : '',
+            foto: m ? `https://lh3.googleusercontent.com/d/${m[0]}=w1000` : '',
             hasta: iHasta >= 0 ? r[iHasta] : '',
             wa: iWa >= 0 && r[iWa] ? (r[iWa] || '').replace(/\D/g,'') : (bizWa ? bizWa.replace(/\D/g,'') : '')
           };
@@ -751,7 +762,7 @@ function renderOfertas(){
   ofertasList.forEach((o, i) => {
     const card = document.createElement('button');
     card.type = 'button'; card.className = 'of-card';
-    card.innerHTML = `<div class="of-img" ${o.foto ? `style="background-image:url('${o.foto}')"` : ''}>${o.foto ? '' : '🍀'}</div>
+    card.innerHTML = `<div class="of-img">${o.foto ? `<img src="${o.foto}" alt="" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="imgFallback(this)">` : '🍀'}</div>
       <div class="of-body">${o.comercio ? `<span class="of-biz">${escHtml(o.comercio)}</span>` : ''}<h3 class="of-title">${escHtml(o.titulo)}</h3>${o.hasta ? `<span class="of-until">Válida hasta ${escHtml(o.hasta)}</span>` : ''}</div>`;
     card.addEventListener('click', () => openOferta(o));
     track.appendChild(card);
@@ -780,7 +791,7 @@ function renderOfertas(){
 
 function openOferta(o){
   const body = document.getElementById('ofModalBody');
-  body.innerHTML = `${o.foto ? `<img class="of-full" src="${o.foto}" alt="" onerror="this.style.display='none';">` : ''}
+  body.innerHTML = `${o.foto ? `<img class="of-full" src="${o.foto}" alt="" referrerpolicy="no-referrer" onerror="imgFallback(this)">` : ''}
     <div class="of-modal-text"><span class="of-biz">${escHtml(o.comercio)}</span>
     <h3 class="of-title" style="font-size:24px;">${escHtml(o.titulo)}</h3>
     ${o.desc ? `<p style="margin:0; color:var(--ink-soft); white-space:pre-line;">${escHtml(o.desc)}</p>` : ''}
@@ -918,7 +929,7 @@ async function loadSheetBusinesses(){
     function driveImageUrl(link){
       if(!link) return '';
       const m = link.match(/[-\w]{25,}/);
-      return m ? `https://drive.google.com/thumbnail?id=${m[0]}&sz=w1000` : '';
+      return m ? `https://lh3.googleusercontent.com/d/${m[0]}=w1000` : '';
     }
 
     sheetBusinesses = rows.slice(1).filter(r => {
@@ -966,7 +977,7 @@ function renderBusinessCards(){
   items.forEach((c, i) => {
     const card = document.createElement('div');
     card.className = 'biz-card';
-    const imgHtml = c.image ? `<img class="biz-image" src="${c.image}" alt="${c.nombre}" onerror="this.style.display='none';">` : '';
+    const imgHtml = c.image ? `<img class="biz-image" src="${c.image}" alt="${c.nombre}" referrerpolicy="no-referrer" onerror="imgFallback(this)">` : '';
     const linksHtml = (c.links || []).filter(l => l.url).map(linkIconHtml).join('');
     card.innerHTML = `
       ${imgHtml}
@@ -1122,7 +1133,7 @@ function openBizDetail(b){
       <p class="hint">Si el feed no carga, podés verlo directamente en <a href="https://instagram.com/${igUser}" target="_blank" rel="noopener">instagram.com/${igUser}</a>.</p>
     </div>` : '';
   modal.innerHTML = `
-    ${b.image ? `<img src="${b.image}" alt="${b.nombre}" style="width:100%; height:200px; object-fit:cover; border-radius:12px; margin-bottom:18px;" onerror="this.style.display='none';">` : ''}
+    ${b.image ? `<img src="${b.image}" alt="${b.nombre}" style="width:100%; height:200px; object-fit:cover; border-radius:12px; margin-bottom:18px;" referrerpolicy="no-referrer" onerror="imgFallback(this)">` : ''}
     <p class="eyebrow" style="margin-bottom:6px;">${b.rubroLabel}</p>
     <h2 style="margin-bottom:14px;">${b.nombre}</h2>
     <div class="admin-section" style="margin-top:0; padding-top:0; border-top:none;">
